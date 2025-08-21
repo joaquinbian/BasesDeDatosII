@@ -1,0 +1,26 @@
+CREATE DATABASE Clase02;
+GO
+USE Clase02;
+GO
+CREATE TABLE Empleados(
+    IDEmpleado INT NOT NULL,
+    Apellidos VARCHAR(255) NOT NULL,
+    Nombres VARCHAR(255) NOT NULL,
+    SALARIO DECIMAL NOT NULL,
+    FechaContratacion DATE NOT NULL,
+    IDArea SMALLINT NULL,
+);
+
+
+CREATE TABLE Areas(
+    IDArea SMALLINT NOT NULL,
+    Nombre VARCHAR(255) NOT NULL,
+    Mail VARCHAR(255) NOT NULL
+);
+
+GO
+
+ALTER TABLE Empleados
+ADD CONSTRAINT PK_Empleados PRIMARY KEY (IDEmpleado);
+GO
+
