@@ -1,7 +1,8 @@
 USE Clase02
 GO
 
-CREATE TABLE PresupuestosAnualesAreas(
+CREATE TABLE PresupuestosAnualesAreas
+(
     IDArea SMALLINT NOT NULL,
     Anio SMALLINT NOT NULL,
     Presupuesto MONEY NOT NULL CHECK (Presupuesto >= 0),
@@ -10,13 +11,32 @@ CREATE TABLE PresupuestosAnualesAreas(
 )
 GO
 
-CREATE TABLE Proyectos (
+CREATE TABLE Proyectos
+(
     IDProyecto INT NOT NULL PRIMARY KEY IDENTITY(1,1), --incremental
     Nombre VARCHAR(255) NOT NULL
 )
-CREATE TABLE EmpleadosProyecto(
+GO
+
+CREATE TABLE EmpleadosProyecto
+(
     IDEmpleado INT NOT NULL FOREIGN KEY REFERENCES Empleados(IDEmpleado),
     IDProyecto INT NOT NULL FOREIGN KEY REFERENCES Proyectos(IDProyecto),
     PRIMARY KEY (IDEmpleado, IDProyecto)
-
 )
+GO
+
+CREATE TABLE TiemposEmpleadosProyecto
+(
+    ID BIGINT NOT NULL PRIMARY KEY IDENTITY(1,1),
+    IDEmpleado int NOT NULL,
+    IDProyecto int NOT NULL,
+    Fecha Date NOT NULL,
+    MinutosTrabajados SMALLINT NOT NULL CHECK (MinutosTrabajados > 0)
+)
+GO
+
+
+ALTER TABLE TiemposEmpleadosProyecto
+ADD CONSTRAINT FK_EmpleadosProyecto FOREIGN KEY(IDEmpleado, IDProyecto) REFERENCES EmpleadosProyecto(IDEmpleado, IDProyecto)
+GO
