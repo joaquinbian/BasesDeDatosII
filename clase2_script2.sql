@@ -14,3 +14,9 @@ CREATE TABLE Proyectos (
     IDProyecto INT NOT NULL PRIMARY KEY IDENTITY(1,1), --incremental
     Nombre VARCHAR(255) NOT NULL
 )
+CREATE TABLE EmpleadosProyecto(
+    IDEmpleado INT NOT NULL FOREIGN KEY REFERENCES Empleados(IDEmpleado),
+    IDProyecto INT NOT NULL FOREIGN KEY REFERENCES Proyectos(IDProyecto),
+    PRIMARY KEY (IDEmpleado, IDProyecto)
+
+)
