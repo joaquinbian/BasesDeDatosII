@@ -19,6 +19,7 @@ CREATE TABLE Areas(
 );
 
 GO
+-- RESTRICCIONES
 
 ALTER TABLE Empleados
 ADD CONSTRAINT PK_Empleados PRIMARY KEY (IDEmpleado);
@@ -29,6 +30,16 @@ ADD CONSTRAINT PK_Areas PRIMARY KEY(IDArea)
 GO
 
 ALTER TABLE Empleados
+ADD CONSTRAINT CHK_SalarioPositivo CHECK (Salario > 0);
+GO 
+
+ALTER TABLE Empleados
+ADD CONSTRAINT FK_EmpleadosAreas FOREIGN KEY (IDArea) REFERENCES Areas(IDArea);
+GO
+
+-- MODIFICACION DE COLUMNAS
+
+ALTER TABLE Empleados
 DROP COLUMN SALARIO;
 GO
 
@@ -36,6 +47,18 @@ ALTER TABLE Empleados
 ADD Salario DECIMAL NOT NULL;
 GO
 
-ALTER TABLE Empleados
-ADD CONSTRAINT CHK_SalarioPositivo CHECK (Salario > 0);
+-- no funciona para cambios de nombre
+ALTER TABLE Areas
+ALTER COLUMN Telefono VARCHAR(30) NULL;
+GO
+
+-- CREACION DE COLUMNAS
+
+ALTER TABLE Empleados ADD Telefono VARCHAR(20) NULL;
+GO
+
+ALTER TABLE Areas ADD Telefono VARCHAR(20) NULL;
+GO
+
+ALTER TABLE Empleados DROP COLUMN Telefono;
 GO
