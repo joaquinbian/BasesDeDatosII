@@ -40,3 +40,8 @@ GO
 ALTER TABLE TiemposEmpleadosProyecto
 ADD CONSTRAINT FK_EmpleadosProyecto FOREIGN KEY(IDEmpleado, IDProyecto) REFERENCES EmpleadosProyecto(IDEmpleado, IDProyecto)
 GO
+
+
+-- CONSULTAS DE ACCION
+INSERT INTO Areas(IDArea, Nombre, Mail) VALUES(1, 'Sistemas', 'sistemas@mail.com');
+INSERT INTO Areas(IDArea, Nombre, Mail) VALUES(2, 'Recursos Humanos', 'rrhh@mail.com');
