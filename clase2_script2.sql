@@ -43,5 +43,21 @@ GO
 
 
 -- CONSULTAS DE ACCION
+
+-- INSERCION
 INSERT INTO Areas(IDArea, Nombre, Mail) VALUES(1, 'Sistemas', 'sistemas@mail.com');
 INSERT INTO Areas(IDArea, Nombre, Mail) VALUES(2, 'Recursos Humanos', 'rrhh@mail.com');
+INSERT INTO Areas(IDArea, Nombre, Mail, Telefono) VALUES(3, 'Contable', 'contabilidad@mail.com', 123456);
+
+--insercion multiple
+INSERT INTO Areas(IDArea, Nombre, Mail, Telefono) 
+VALUES
+(4, 'Marketing', 'marketing@mail.com', '123456'),
+(5, 'Tecnologia', 'it@mail.com', '123456'),
+(6, 'Soporte', 'soporte@mail.com', '123456');
+
+SELECT * from Areas;
+
+
+-- MODIFICACION
+UPDATE Areas SET Nombre = 'Legales', Mail = 'legales@mail.com' WHERE IDArea = 1;
