@@ -61,3 +61,6 @@ SELECT * from Areas;
 
 -- MODIFICACION
 UPDATE Areas SET Nombre = 'Legales', Mail = 'legales@mail.com' WHERE IDArea = 1;
+
+-- ELIMINACION
+DELETE FROM Areas WHERE IDArea = 1;
