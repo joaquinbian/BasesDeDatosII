@@ -139,3 +139,7 @@ VALUES
 (18,1, 4, '2024-02-28'),
 (18,10, 1, '2023-05-10');
 GO
+
+-- punto 2
+UPDATE Archivos SET Descripcion = 'Archivo eliminado por el usuario' WHERE Nombre LIKE 'Documento Eliminado';
+GO
