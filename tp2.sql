@@ -143,3 +143,11 @@ GO
 -- punto 2
 UPDATE Archivos SET Descripcion = 'Archivo eliminado por el usuario' WHERE Nombre LIKE 'Documento Eliminado';
 GO
+
+SELECT * FROM Archivos WHERE Nombre LIKE 'Documento Eliminado';
+
+
+-- punto 3
+SELECT * from Archivos WHERE Eliminado = 0 AND YEAR(FechaCreacion) < '2021';
+UPDATE Archivos SET Eliminado = 1 WHERE Eliminado = 0 AND YEAR(FechaCreacion) < '2021';
+SELECT * from Archivos WHERE Eliminado = 0 AND YEAR(FechaCreacion) < '2021';
