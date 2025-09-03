@@ -12,3 +12,20 @@ SELECT * FROM Archivos WHERE Nombre LIKE 'informe anual';
 --todos los que comiencen con i
 SELECT * FROM Archivos WHERE Nombre LIKE 'i%';
 
+--todos los que contengan la a, al principio, al medio o al final
+SELECT * FROM Archivos WHERE Nombre LIKE '%a%';
+
+--todos los que contengan una a seguido de un caracter cualquiera y otra a 
+SELECT * FROM Archivos WHERE Nombre LIKE '%a_a%';
+
+--todos los que contengan una m seguida de los caracteres entre corchetes
+SELECT * FROM Archivos WHERE Nombre LIKE '%m[aeiou]%';
+
+--todos los que contengan una m Y NO este seguida de los caracteres dentro de  los corchetes
+--niega al de arriba
+SELECT * FROM Archivos WHERE Nombre LIKE '%m[^aeiou]%';
+
+--todos los que comience con una vocal y siga con una letra entre la j y la z (incluyente)
+--y finalice con cualquier caracter
+SELECT * FROM Archivos WHERE Nombre LIKE '[aeiou][j-z]%';
+
