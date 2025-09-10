@@ -29,3 +29,21 @@ SELECT * FROM Archivos WHERE Nombre LIKE '%m[^aeiou]%';
 --y finalice con cualquier caracter
 SELECT * FROM Archivos WHERE Nombre LIKE '[aeiou][j-z]%';
 
+-- todos los que arranquen con consonantes
+SELECT * FROM Archivos WHERE Nombre LIKE '[^aeiou1234567890]%';
+
+
+
+
+-- DECISION CON CASE-WHEN
+
+SELECT Nombre, Descripcion, Extension,
+CASE 
+WHEN Tamanio < 100000 THEN 'Pequeño'
+WHEN Tamanio BETWEEN 100001 AND 10000000 THEN 'Mediano'
+ELSE 'Grande'
+END AS 'Tamanio'
+FROM Archivos; 
+
+
+-- inner join
