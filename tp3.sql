@@ -106,3 +106,26 @@ Tamanio,
 FechaUltimaModificacion, 
 Eliminado 
 FROM Archivos WHERE Eliminado = 1 AND YEAR(FechaUltimaModificacion) <= 2021 OR Eliminado = 0 AND YEAR(FechaUltimaModificacion) > 2021;
+
+
+-- Listar los Archivos creados en el año 2023 indicando todas las columnas y además una llamada “DiaSemana” que devuelva a qué día de la semana (1-7) corresponde la fecha de creación del archivo. 
+--Ordenar los registros por la columna que contiene el día de la semana.
+--DESAFÍO: crear otra columna llamada DiaSemanaEnLetras que contenga el día de la semana, pero en letras (suponiendo que la semana comienza en 1-DOMINGO). 
+--Por ejemplo, si la fecha del Archivo es 20/08/2023, la columna DiaSemana debe contener 1 y la columna DiaSemanaEnLetras debe contener DOMINGO.
+
+SELECT *, 
+DATEPART(dw,FechaCreacion) AS 'DiaSemana',
+CASE 
+WHEN DATEPART(dw,FechaCreacion) = 1 THEN 'DOMINGO'
+WHEN DATEPART(dw,FechaCreacion) = 2 THEN 'LUNES'
+WHEN DATEPART(dw,FechaCreacion) = 3 THEN 'MARTES'
+WHEN DATEPART(dw,FechaCreacion) = 4 THEN 'MIERCOLES'
+WHEN DATEPART(dw,FechaCreacion) = 5 THEN 'JUEVES'
+WHEN DATEPART(dw,FechaCreacion) = 6 THEN 'VIERNES'
+ELSE 'SABADO' END AS 'DiaSemanaEnLetras'
+FROM Archivos WHERE YEAR(FechaCreacion) = 2023;
+
+
+-- Listar los Archivos que no estén Eliminados y cuyo mes de creación coincida con el mes actual (sin importar el año). 
+-- NOTA: obtener el mes actual mediante una función, no forzar el valor.
+SELECT * FROM Archivos  WHERE Eliminado = 0 AND MONTH(FechaCreacion) = MONTH(GETDATE());
