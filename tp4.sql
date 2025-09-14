@@ -76,6 +76,7 @@ ORDER BY Tamanio ASC;
 --Siendo Gigabytes si al menos pesa un gigabyte, Megabytes si al menos pesa un megabyte, Kilobyte si al menos pesa un kilobyte o en su defecto expresado en bytes.
 --Por ejemplo, si el archivo imagen.jpg pesa 40960 bytes entonces debe figurar 40 en la columna Tamaño Calculado y 'Kilobytes' en la columna unidad
 
+
 SELECT Nombre, Extension, Tamanio, TipoArchivo,
 CASE WHEN Tamanio >= 1073741824 THEN Tamanio / 1073741824 --GB
 WHEN Tamanio >= 1048576 THEN Tamanio / 1048576 --MB
@@ -89,3 +90,34 @@ ELSE 'Bytes'  END AS 'Unidad'
 FROM Archivos
 INNER JOIN TiposArchivos ON Archivos.IDTipoArchivo = TiposArchivos.IDTipoArchivo
 ;
+
+-- Listar los nombres de archivo y extensión de los archivos que han sido compartidos.
+SELECT Nombre, Extension FROM Archivos A 
+INNER JOIN ArchivosCompartidos AC ON A.IDArchivo = AC.IDArchivo;
+
+
+
+-- Listar los nombres de archivo y extensión de los archivos que han sido compartidos a usuarios con apellido 'Clarck' o 'Jones'
+SELECT A.Nombre, Extension FROM Archivos A 
+INNER JOIN ArchivosCompartidos AC ON A.IDArchivo = AC.IDArchivo
+INNER JOIN Usuarios U ON AC.IDUsuario = U.IDUsuario
+WHERE AC.IDUsuario IN (SELECT IDUsuario FROM Usuarios WHERE Apellido LIKE 'Clarck' OR Apellido LIKE 'Jones');
+
+
+-- Listar los nombres de archivo, extensión, apellidos y nombres de los usuarios a quienes se le hayan compartido archivos con permiso de 'Escritura'
+
+SELECT A.Nombre, A.Extension, U.Apellido, U.Nombre FROM ArchivosCompartidos AC
+INNER JOIN Archivos A ON AC.IDArchivo = A.IDArchivo
+INNER JOIN Usuarios U ON U.IDUsuario = AC.IDUsuario
+INNER JOIN Permisos P ON AC.IDPermiso = P.IDPermiso
+WHERE P.Nombre LIKE 'Escritura';
+
+-- Listar los nombres de archivos y extensión de los archivos que no han sido compartidos
+SELECT Nombre, Extension FROM Archivos A
+LEFT JOIN ArchivosCompartidos AC ON A.IDArchivo = AC.IDArchivo
+WHERE AC.IDArchivo IS NULL;
+
+--Listar los apellidos y nombres de los usuarios dueños que tienen archivos eliminados.
+SELECT DISTINCT U.Apellido, U.Nombre FROM Usuarios U
+INNER JOIN Archivos A ON U.IDUsuario = A.IDUsuarioDuenio
+WHERE A.Eliminado = 1;
