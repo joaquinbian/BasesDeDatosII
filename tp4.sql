@@ -59,3 +59,33 @@ SELECT Extension, TipoUsuario FROM Archivos
 INNER JOIN Usuarios ON IDUsuarioDuenio = IDUsuario
 INNER JOIN TiposUsuario ON Usuarios.IDTipoUsuario = TiposUsuario.IDTipoUsuario 
 WHERE TipoUsuario LIKE 'Suscripcion Plus' OR TipoUsuario LIKE 'Suscripcion Empresarial' OR TipoUsuario LIKE 'Suscripcion Premium';
+
+
+
+-- Listar los apellidos y nombres de los usuarios dueños y el tamaño del archivo de los tres archivos con extensión 'zip' más pesados.
+-- Puede ocurrir que el mismo usuario aparezca varias veces en el listado.
+
+
+SELECT TOP 3 Usuarios.Nombre, Usuarios.Apellido, Tamanio FROM Archivos
+INNER JOIN Usuarios ON Archivos.IDUsuarioDuenio = Usuarios.IDUsuario
+WHERE Extension LIKE 'zip'
+ORDER BY Tamanio ASC; 
+
+
+-- Por cada archivo listar el nombre del archivo, la extensión, el tamaño en bytes, el nombre del tipo de archivo y el tamaño calculado en su mayor expresión y la unidad calculada. 
+--Siendo Gigabytes si al menos pesa un gigabyte, Megabytes si al menos pesa un megabyte, Kilobyte si al menos pesa un kilobyte o en su defecto expresado en bytes.
+--Por ejemplo, si el archivo imagen.jpg pesa 40960 bytes entonces debe figurar 40 en la columna Tamaño Calculado y 'Kilobytes' en la columna unidad
+
+SELECT Nombre, Extension, Tamanio, TipoArchivo,
+CASE WHEN Tamanio >= 1073741824 THEN Tamanio / 1073741824 --GB
+WHEN Tamanio >= 1048576 THEN Tamanio / 1048576 --MB
+WHEN Tamanio >= 1024 THEN Tamanio / 1024 --KB
+ELSE Tamanio  END AS 'Tamanio Calculado',
+
+CASE WHEN Tamanio >= 1073741824 THEN 'Gigabytes' --GB
+WHEN Tamanio >= 1048576 THEN 'Megabytes' --MB
+WHEN Tamanio >= 1024 THEN 'Kilobytes' --KB
+ELSE 'Bytes'  END AS 'Unidad'
+FROM Archivos
+INNER JOIN TiposArchivos ON Archivos.IDTipoArchivo = TiposArchivos.IDTipoArchivo
+;
