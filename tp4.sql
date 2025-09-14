@@ -101,7 +101,7 @@ INNER JOIN ArchivosCompartidos AC ON A.IDArchivo = AC.IDArchivo;
 SELECT A.Nombre, Extension FROM Archivos A 
 INNER JOIN ArchivosCompartidos AC ON A.IDArchivo = AC.IDArchivo
 INNER JOIN Usuarios U ON AC.IDUsuario = U.IDUsuario
-WHERE AC.IDUsuario IN (SELECT IDUsuario FROM Usuarios WHERE Apellido LIKE 'Clarck' OR Apellido LIKE 'Jones');
+WHERE U.Apellido LIKE 'Clarck' OR U.Apellido LIKE 'Jones';
 
 
 -- Listar los nombres de archivo, extensión, apellidos y nombres de los usuarios a quienes se le hayan compartido archivos con permiso de 'Escritura'
