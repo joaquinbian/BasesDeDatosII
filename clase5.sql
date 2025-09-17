@@ -1,0 +1,6 @@
+-- funciones de resumen
+    -- count
+    -- avg
+    -- max
+    -- min
+    -- sum
