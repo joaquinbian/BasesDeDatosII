@@ -1,0 +1,15 @@
+USE Clase07
+GO
+
+CREATE TRIGGER TR_LOGIC_DELETE_CUENTA_BANCARIA ON Cuentas
+INSTEAD OF DELETE
+AS
+BEGIN
+   UPDATE Cuentas SET FechaBaja = GETDATE() WHERE IDCuenta IN (select IDCuenta FROM deleted)
+END
+
+DELETE FROM Cuentas WHERE IDCuenta IN (13, 14);
+
+SELECT * FROM Cuentas;
+
+UPDATE Cuentas SET FechaBaja = null;
