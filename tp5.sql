@@ -95,6 +95,7 @@ GROUP BY ta.TipoArchivo
 
 -- El nombre del tipo de archivo y el promedio de tamaño de los archivos que corresponden a dicho tipo de archivo.
 -- Solamente listar aquellos registros que superen los 50 Megabytes de promedio.
-SELECT TA.TipoArchivo, AVG(A.Tamanio * 1.0/ 1048576)  as PromedioTamanio FROM Archivos A
+SELECT TA.TipoArchivo, AVG(A.Tamanio * 1.0 / 1048576) as PromedioTamanio FROM Archivos A
 INNER JOIN TiposArchivos TA ON A.IDTipoArchivo = TA.IDTipoArchivo
 GROUP BY TA.TipoArchivo
+HAVING  AVG(A.Tamanio * 1.0 / 1048576) > 50
