@@ -136,6 +136,7 @@ CREATE OR ALTER PROCEDURE sp_Agregar_Tutoria(
 ) AS
 BEGIN
     BEGIN TRY
+    BEGIN TRANSACTION
         IF NOT EXISTS (SELECT 1 FROM Estudiantes WHERE IDEstudiante = @IDEstudianteTutor)
             BEGIN
                 RAISERROR('El estudiante TUTOR ingresado no existe', 16, 1)
@@ -161,14 +162,21 @@ BEGIN
                 RAISERROR('Uno o ambos estudiantes no están activos', 16, 1)
                 RETURN
             END
+        
+        IF NOT EXISTS (SELECT 1 FROM Materias WHERE IDMateria = @IDMateria)
+            BEGIN
+                RAISERROR('La materia ingresada no existe', 16, 1)
+                RETURN
+        END
 
-        IF NOT EXISTS (SELECT 1 FROM EstudiantesMaterias WHERE IDEstudiante = @IDEstudianteTutor AND Rol = 'Tutor')
+
+        IF NOT EXISTS (SELECT 1 FROM EstudiantesMaterias WHERE IDEstudiante = @IDEstudianteTutor AND IDMateria = @IDMateria AND Rol = 'Tutor')
             BEGIN
                 RAISERROR('El estudiante tutor ingresado no esta registrado como tutor en la materia', 16, 1)
                 RETURN
             END
 
-            IF NOT EXISTS (SELECT 1 FROM EstudiantesMaterias WHERE IDEstudiante = @IDEstudianteAlumno AND Rol = 'Alumno')
+            IF NOT EXISTS (SELECT 1 FROM EstudiantesMaterias WHERE IDEstudiante = @IDEstudianteAlumno AND IDMateria = @IDMateria AND Rol = 'Alumno')
             BEGIN
                 RAISERROR('El estudiante alimno ingresado no esta registrado como alimno en la materia', 16, 1)
                 RETURN
@@ -180,12 +188,7 @@ BEGIN
                 RETURN 
             END
 
-        IF NOT EXISTS (SELECT 1 FROM Materias WHERE IDMateria = @IDMateria)
-            BEGIN
-                RAISERROR('La materia ingresada no existe', 16, 1)
-                RETURN
-            END
-
+       
         IF CAST(GETDATE() AS date) > @Fecha
             BEGIN
                 RAISERROR('La fecha de la tutoria es invalida', 16, 1)
@@ -199,8 +202,12 @@ BEGIN
             END
         
         INSERT INTO Tutorias(IDEstudianteTutor, IDEstudianteAlumno, IDMateria, Fecha, Duracion) VALUES(@IDEstudianteTutor, @IDEstudianteAlumno, @IDMateria, @Fecha, @Duracion)
+        UPDATE Estudiantes SET SaldoCredito = SaldoCredito - @Duracion WHERE IDEstudiante = @IDEstudianteAlumno
+        COMMIT TRANSACTION
     END TRY
     BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION
         PRINT ERROR_MESSAGE()
     END CATCH
 END
