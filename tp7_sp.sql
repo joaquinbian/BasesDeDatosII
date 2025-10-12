@@ -203,11 +203,156 @@ BEGIN
         
         INSERT INTO Tutorias(IDEstudianteTutor, IDEstudianteAlumno, IDMateria, Fecha, Duracion) VALUES(@IDEstudianteTutor, @IDEstudianteAlumno, @IDMateria, @Fecha, @Duracion)
         UPDATE Estudiantes SET SaldoCredito = SaldoCredito - @Duracion WHERE IDEstudiante = @IDEstudianteAlumno
+        DECLARE @NombreMateria VARCHAR(100)
+        SELECT @NombreMateria = Nombre FROM Materias WHERE IDMateria = @IDMateria
+        INSERT INTO HistorialCreditos(IDEstudiante, Cantidad, Tipo, Descripcion)
+        VALUES (@IDEstudianteAlumno, @Duracion, 'Usa', 'Se asigna tutoria al alumno de ' + @NombreMateria)
         COMMIT TRANSACTION
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
             ROLLBACK TRANSACTION
         PRINT ERROR_MESSAGE()
+    END CATCH
+END
+GO
+
+-- Realizar un procedimiento almacenado llamado sp_Confirmar_Tutoria que registre la confirmación por parte del Tutor o Alumno. 
+-- El procedimiento debe recibir: el IDTutoria y el Rol de quien confirma.
+
+
+CREATE OR ALTER PROCEDURE sp_Confirmar_Tutoria (
+    @IDTutoria INT,
+    @Rol VARCHAR(10)
+) AS
+BEGIN
+    BEGIN TRY
+    BEGIN TRANSACTION
+        IF NOT EXISTS (SELECT 1 FROM Tutorias WHERE IDTutoria = @IDTutoria)
+            BEGIN
+                RAISERROR('La tutoria ingresada no existe', 16, 1)
+                RETURN
+            END
+        SET @Rol = TRIM(@Rol)
+        IF @Rol != 'Tutor' AND @Rol != 'Alumno'
+            BEGIN
+                RAISERROR('El estudiante debe ser "Tutor" o "Alumno"', 16, 1)
+                RETURN
+        END
+        
+        DECLARE @Confirm_Alumno BIT 
+        DECLARE @Confirm_Tutor BIT 
+        DECLARE @Duracion TINYINT 
+        DECLARE @ID_Tutor INT 
+        DECLARE @Estado VARCHAR(20)
+        DECLARE @NombreMateria VARCHAR(100)
+        SELECT 
+             @ID_Tutor = IDEstudianteTutor,
+             @Duracion = Duracion,
+             @Confirm_Tutor = ConfirmaTutor,
+             @Confirm_Alumno = ConfirmaAlumno,
+             @Estado = Estado
+        FROM Tutorias
+        WHERE IDTutoria = @IDTutoria
+
+        SELECT @NombreMateria = Nombre FROM Materias WHERE IDMateria = (SELECT IDMateria FROM Tutorias WHERE IDTutoria = @IDTutoria)
+
+        IF @Estado != 'PENDIENTE'
+            BEGIN
+                RAISERROR('Solo se pueden confirmar tutorías pendientes', 16, 1)
+            RETURN
+        END
+
+        IF @Confirm_Alumno = 1 AND @Confirm_Tutor = 1 
+            BEGIN
+                PRINT 'La tutoria ya ha sido confirmada por ambas partes'
+                RETURN
+            END
+        
+        IF @Rol = 'Alumno'
+            BEGIN
+                IF @Confirm_Alumno = 1 
+                    BEGIN
+                        PRINT 'La tutoria ya ha sido confirmada por el alumno'
+                        RETURN
+                    END
+                
+                UPDATE Tutorias SET ConfirmaAlumno = 1 WHERE IDTutoria = @IDTutoria
+                IF @Confirm_Tutor = 1
+                    BEGIN 
+                        UPDATE Tutorias SET Estado = 'Realizada' WHERE IDTutoria = @IDTutoria
+                        UPDATE Estudiantes SET SaldoCredito = SaldoCredito + @Duracion WHERE IDEstudiante = @ID_Tutor
+                        INSERT INTO HistorialCreditos(IDEstudiante, Cantidad, Tipo, Descripcion) 
+                        VALUES (@ID_Tutor, @Duracion, 'Gana', 'Gana por tutoria de ' + @NombreMateria)
+                END
+            END
+        IF @Rol = 'Tutor'
+            BEGIN
+                IF @Confirm_Tutor = 1
+                    BEGIN
+                        PRINT 'La tutoria ya ha sido confirmada por el tutor'
+                        RETURN
+                    END
+                UPDATE Tutorias SET ConfirmaTutor = 1 WHERE IDTutoria = @IDTutoria
+                
+                IF @Confirm_Alumno = 1
+                    BEGIN 
+                        UPDATE Tutorias SET Estado = 'Realizada' WHERE IDTutoria = @IDTutoria
+                        UPDATE Estudiantes SET SaldoCredito = SaldoCredito + @Duracion WHERE IDEstudiante = @ID_Tutor
+                        INSERT INTO HistorialCreditos(IDEstudiante, Cantidad, Tipo, Descripcion) 
+                        VALUES (@ID_Tutor, @Duracion, 'Gana', 'Gana por tutoria de ' + @NombreMateria)
+                END
+            END
+    COMMIT TRANSACTION
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 
+            ROLLBACK TRANSACTION
+        PRINT ERROR_MESSAGE()
+    END CATCH
+END
+GO
+
+-- Realizar un procedimiento almacenado llamado sp_Obtener_Tutorias que reciba un IDEstudiante y un Rol ('Tutor' o 'Alumno'). 
+--El procedimiento debe devolver un listado con las tutorías brindadas o recibidas (según el rol enviado) 
+--indicando el nombre y apellido del estudiante tutor, nombre y apellido del estudiante alumno, fecha, nombre de la materia y cantidad de horas de la tutoría.
+
+
+CREATE OR ALTER PROCEDURE sp_Obtener_Tutorias (
+    @IDEstudiante INT,
+    @Rol VARCHAR(10)
+) AS
+BEGIN
+    BEGIN TRY
+        SET @Rol = TRIM(@Rol)
+        IF @Rol != 'Tutor' AND @Rol != 'Alumno'
+            BEGIN
+                RAISERROR('El estudiante debe ser "Tutor" o "Alumno"', 16, 1)
+                RETURN
+        END
+
+        IF NOT EXISTS(SELECT 1 FROM Estudiantes WHERE IDEstudiante=@IDEstudiante)
+            BEGIN
+                RAISERROR('El estudiante no existe', 16, 1)
+                RETURN
+            END
+        
+        SELECT 
+            EA.Nombre AS NombreAlumno, EA.Apellido AS ApellidoAlumno,
+            ET.Nombre AS NombreTutor, ET.Apellido AS ApellidoTutor,
+            M.Nombre,
+            Fecha,
+            Duracion
+        FROM Tutorias T
+        INNER JOIN Estudiantes EA ON EA.IDEstudiante = T.IDEstudianteAlumno
+        INNER JOIN Estudiantes ET ON ET.IDEstudiante = T.IDEstudianteTutor
+        INNER JOIN Materias M ON M.IDMateria = T.IDMateria
+        WHERE 
+        (@Rol = 'Tutor' AND T.IDEstudianteTutor = @IDEstudiante)
+        OR
+        (@Rol = 'Alumno' AND T.IDEstudianteAlumno = @IDEstudiante)
+    END TRY
+    BEGIN CATCH
+    PRINT ERROR_MESSAGE()
     END CATCH
 END
