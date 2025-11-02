@@ -270,7 +270,7 @@ BEGIN
         IF @Estado != 'PENDIENTE'
             BEGIN
             RAISERROR('Solo se pueden confirmar tutorías pendientes', 16, 1)
-             RETURN
+            RETURN
         END
 
         IF @Confirm_Alumno = 1 AND @Confirm_Tutor = 1 
